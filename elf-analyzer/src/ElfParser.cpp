@@ -5,19 +5,21 @@
 #include <fstream>
 #include <iostream>
 
-ElfParser::ElfParser(const std::string& path) : filePath(path) {
+using namespace std;
+
+ElfParser::ElfParser(const string& path) : filePath(path) {
     initParsers();
 }
 
 void ElfParser::initParsers() {
-    parsers.emplace_back(std::make_unique<ElfHeaderParser>());
+    parsers.emplace_back(make_unique<ElfHeaderParser>());
     // 后续添加其它模块...
 }
 
 nlohmann::json ElfParser::parseAll() {
-    std::ifstream ifs(filePath, std::ios::binary);
+    ifstream ifs(filePath, ios::binary);
     if (!ifs) {
-        std::cerr << "Failed to open file: " << filePath << std::endl;
+        cerr << "Failed to open file: " << filePath << endl;
         return { {"error", "File open failed"} };
     }
 
