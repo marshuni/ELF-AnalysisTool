@@ -1,15 +1,19 @@
 cmake_minimum_required(VERSION 3.10)
-project(ELFAnalyzer)
+project(ELFAnalyzerC C)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # 包含头文件路径
 include_directories(include json)
 
-# 递归收集源文件
-file(GLOB_RECURSE SOURCES
-    src/*.cpp
+# 所有源文件
+file(GLOB SRC_FILES
+    src/*.c
+    src/parsers/*.c
+    src/json/cJSON.c
+    main.c
 )
 
-add_executable(elf-analyzer main.cpp ${SOURCES})
+# 生成可执行文件
+add_executable(elf-analyzer ${SRC_FILES})
