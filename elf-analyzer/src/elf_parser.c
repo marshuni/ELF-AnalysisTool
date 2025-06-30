@@ -1,6 +1,8 @@
 #include "elf_parser.h"
 #include "parsers/elf_header.h"
-// #include "program_header.h" 等其他模块
+#include "parsers/program_header.h"
+#include "parsers/section_header.h"
+// 其他模块
 #include "json/cJSON.h"
 
 #include <stdio.h>
@@ -21,6 +23,17 @@ bool parse_elf_file(const char* filepath, const char* output_path) {
         return false;
     }
 
+    if (!parse_program_header(fp, root)) {
+        fclose(fp);
+        cJSON_Delete(root);
+        return false;
+    }
+
+    if (!parse_section_headers(fp, root)) {
+        fclose(fp);
+        cJSON_Delete(root);
+        return false;
+    }
     // 其他模块：parse_program_header(fp, root) 等
 
     if (output_path) {
