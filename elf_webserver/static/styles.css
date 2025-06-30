@@ -1,0 +1,46 @@
+.vertical-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* 元素占满整个高度 */
+}
+
+.analysis-result {
+    display: flex;
+    justify-content: center;
+    color: SlateBlue;
+    background: linear-gradient(to right, #9fe1fa, #f4edc9);
+    border-radius: 0.5em;
+    font-weight: bold;
+    font-size: 150%;
+    text-align: center;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+table.gridtable {
+    font-family: verdana,arial,sans-serif;
+    font-size:11px;
+    color:#333333;
+    border-width: 1px;
+    border-color: #666666;
+    border-collapse: collapse;
+}
+table.gridtable th {
+    border-width: 1px;
+    padding: 2px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #dedede;
+}
+table.gridtable td {
+    border-width: 1px;
+    padding: 2px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #ffffff;
+}

@@ -1,0 +1,128 @@
+{% extends 'base.html'%}
+
+{% block title %}
+    ELF File Analysis
+{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 在这里写详细页面 -->
+<div class="container">
+    <form action="/index" method="get">
+        <div class="row mt-4">
+            <div class="col-3">
+                <h5 class="vertical-center text-right">上传你的 ELF 文件：</h5>
+            </div>
+            <div class="col-6">
+                <!-- <input type="text" class="form-control" value="{{chemicalEquationSrc}}" name="chemicalEquationSrc" placeholder="Co+2Fe==CoFFee"> -->
+                <input type="file" name="elf_file" class="form-control" required>
+            </div> 
+            {% csrf_token %}
+            <div class="col-3">
+                <button type="submit" class="btn btn-primary " style="float:left">分析</button>
+            </div>
+        </div>
+    </form>
+    <div class="row mt-2">
+        <div class="col">
+            <p class="analysis-result">
+                文件 [{{file_name}}] 分析结果
+            </p>
+        </div>
+    </div>
+        
+    <div class="row mt-2">
+        <div class="col">
+            <div class="card mt-2">
+                <div class="card-header">
+                    <a class="collapsed card-link" data-bs-toggle="collapse"" href="#elf_header">
+                        ELF 头部信息
+                    </a>
+                </div>
+                <div id="elf_header" class="collapse show">
+                    <div class="card-body pre-scrollable">
+                        <table class="table table-bordered table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>字段</th>
+                                    <th>值</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in result.elf_header.items %}
+                                <tr>
+                                    <td>{{ key }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-2">
+                <div class="card-header">
+                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#section_headers">
+                        Section 表
+                    </a>
+                </div>
+                <div id="section_headers" class="collapse">
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    {% for key in result.section_headers.0.keys %}
+                                        <th>{{ key }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in result.section_headers %}
+                                <tr>
+                                    {% for value in row.values %}
+                                        <td>{{ value }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        <!-- </div>
+        <div class="col"> -->
+            <div class="card mt-2">
+                <div class="card-header">
+                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#program_headers">
+                        Program 表
+                    </a>
+                </div>
+                <div id="program_headers" class="collapse">
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                            {% for key in result.program_headers.0.keys %}
+                                <th>{{ key }}</th>
+                            {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in result.program_headers %}
+                            <tr>
+                            {% for value in row.values %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
