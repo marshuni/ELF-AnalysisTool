@@ -1,0 +1,22 @@
+<!-- templates/upload.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ELF 分析工具</title>
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+</head>
+<body class="p-4">
+    <h1>上传 ELF 文件</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="elf_file" class="form-control my-3">
+        <button type="submit" class="btn btn-primary">分析</button>
+    </form>
+    {% if result %}
+        <h2 class="mt-5">分析结果</h2>
+        <pre>{{ result }}</pre>
+    {% endif %}
+</body>
+</html>
