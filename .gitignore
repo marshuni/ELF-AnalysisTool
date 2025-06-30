@@ -33,6 +33,7 @@
 
 build/
 docs/
+elf_webserver/uploads
 
 
 .vscode/
