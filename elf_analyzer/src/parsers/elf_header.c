@@ -23,25 +23,47 @@ bool parse_elf_header(FILE* fp, cJSON* root) {
 
     cJSON* jheader = cJSON_CreateObject();
 
-    const char* elf_class =
-        (header.e_ident[EI_CLASS] == ELFCLASS64) ? "ELF64" :
-        (header.e_ident[EI_CLASS] == ELFCLASS32) ? "ELF32" : "Invalid";
-
-    const char* data_encoding =
-        (header.e_ident[EI_DATA] == ELFDATA2LSB) ? "Little Endian" :
-        (header.e_ident[EI_DATA] == ELFDATA2MSB) ? "Big Endian" : "Unknown";
-
-    cJSON_AddStringToObject(jheader, "class", elf_class);
-    cJSON_AddStringToObject(jheader, "data_encoding", data_encoding);
-    cJSON_AddNumberToObject(jheader, "entry_point", header.e_entry);
+    // 魔数
+    char magic_str[SELFMAG * 3 + 1] = {0};
+    for (int i = 0; i < SELFMAG; ++i) {
+        sprintf(magic_str + i * 3, "%02x ", header.e_ident[i]);
+    }
+    magic_str[SELFMAG * 3 - 1] = '\0';
+    cJSON_AddStringToObject(jheader, "magic", magic_str);
+    // ELF 类别
+    cJSON_AddNumberToObject(jheader, "class", header.e_ident[EI_CLASS]);
+    // 数据编码
+    cJSON_AddNumberToObject(jheader, "data_encoding", header.e_ident[EI_DATA]);
+    // 版本
+    cJSON_AddNumberToObject(jheader, "version", header.e_ident[EI_VERSION]);
+    // OS/ABI
+    cJSON_AddNumberToObject(jheader, "os_abi", header.e_ident[EI_OSABI]);
+    // ABI 版本
+    cJSON_AddNumberToObject(jheader, "abi_version", header.e_ident[EI_ABIVERSION]);
+    // 类型
     cJSON_AddNumberToObject(jheader, "type", header.e_type);
+    // 机器类型
     cJSON_AddNumberToObject(jheader, "machine", header.e_machine);
-    cJSON_AddNumberToObject(jheader, "version", header.e_version);
+    // 版本
+    cJSON_AddNumberToObject(jheader, "version2", header.e_version);
+    // 入口点
+    cJSON_AddNumberToObject(jheader, "entry_point", header.e_entry);
+    // 程序头表偏移
     cJSON_AddNumberToObject(jheader, "program_header_offset", header.e_phoff);
+    // 节头表偏移
     cJSON_AddNumberToObject(jheader, "section_header_offset", header.e_shoff);
+    // 标志
     cJSON_AddNumberToObject(jheader, "flags", header.e_flags);
+    // ELF Header 大小
     cJSON_AddNumberToObject(jheader, "header_size", header.e_ehsize);
-
+    // 程序头表项大小和数量
+    cJSON_AddNumberToObject(jheader, "program_header_entry_size", header.e_phentsize);
+    cJSON_AddNumberToObject(jheader, "program_header_num", header.e_phnum);
+    // 节头表项大小和数量
+    cJSON_AddNumberToObject(jheader, "section_header_entry_size", header.e_shentsize);
+    cJSON_AddNumberToObject(jheader, "section_header_num", header.e_shnum);
+    // 节头字符串表索引
+    cJSON_AddNumberToObject(jheader, "section_header_string_index", header.e_shstrndx);
     // 添加到总 JSON 结构
     cJSON_AddItemToObject(root, "elf_header", jheader);
 

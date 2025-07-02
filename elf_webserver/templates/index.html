@@ -42,47 +42,184 @@
                 </div>
                 <div id="elf_header" class="collapse show">
                     <div class="card-body pre-scrollable">
-                        <table class="table table-bordered table-sm table-hover">
+                        <table class="table table-bordered table-sm table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>字段</th>
-                                    <th>值</th>
+                                    <th style="width: 20%;">字段</th>
+                                    <th style="width: 30%;">值</th>
+                                    <th style="width: 20%;">字段</th>
+                                    <th style="width: 30%;">值</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for key, value in result.elf_header.items %}
-                                <tr>
-                                    <td>{{ key }}</td>
-                                    <td>{{ value }}</td>
+                                <!-- 1. 魔数和文件类型信息 -->
+                                <tr class="table-primary">
+                                    <td colspan="4" class="text-center fw-bold">魔数和文件类型信息</td>
                                 </tr>
-                                {% endfor %}
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="用于标识文件格式，应是7F+ELF的ASCII码">魔数</span>
+                                    </td>
+                                    <td>{{ result.elf_header.magic }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="指示文件是可执行文件、共享对象文件、还是目标文件">文件类型</span>
+                                    </td>
+                                    <td>{{ result.elf_header.type }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="指示适用的处理器架构">机器架构</span>
+                                    </td>
+                                    <td>{{ result.elf_header.machine }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="ELF文件格式版本，应为1">版本信息</span>
+                                    </td>
+                                    <td>{{ result.elf_header.version }}</td>
+                                </tr>
+
+                                <!-- 2. 数据编码和平台信息 -->
+                                <tr class="table-primary">
+                                    <td colspan="4" class="text-center fw-bold">数据编码和平台信息</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="指示数据的字节序（大端或小端）">数据编码</span>
+                                    </td>
+                                    <td>{{ result.elf_header.data_encoding }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="当前ELF规范版本，同上">ELF版本</span>
+                                    </td>
+                                    <td>{{ result.elf_header.version2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="指示操作系统或ABI（应用二进制接口）">OS/ABI标识</span>
+                                    </td>
+                                    <td>{{ result.elf_header.os_abi }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="具体的ABI版本">ABI版本</span>
+                                    </td>
+                                    <td>{{ result.elf_header.abi_version }}</td>
+                                </tr>
+
+                                <!-- 3. 文件结构信息 -->
+                                <tr class="table-primary">
+                                    <td colspan="4" class="text-center fw-bold">文件结构信息</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="程序开始执行的内存地址">入口点地址</span>
+                                    </td>
+                                    <td>{{ result.elf_header.entry_point }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="与处理器相关的标志">标志</span>
+                                    </td>
+                                    <td>{{ result.elf_header.flags }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="ELF文件头的字节大小">ELF头部大小</span>
+                                    </td>
+                                    <td>{{ result.elf_header.header_size }}</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <!-- 3.1 程序头表相关信息 -->
+                                <tr class="table-secondary">
+                                    <td colspan="4" class="text-center fw-bold">程序头（Program Header）表相关信息</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="程序头表在文件中的偏移">程序头表偏移</span>
+                                    </td>
+                                    <td>{{ result.elf_header.program_header_offset }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="每个程序头表项的字节大小">程序头表项大小</span>
+                                    </td>
+                                    <td>{{ result.elf_header.program_header_entry_size }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="程序头表中的表项数量">程序头表项数目</span>
+                                    </td>
+                                    <td>{{ result.elf_header.program_header_num }}</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <!-- 3.2 节头表相关信息 -->
+                                <tr class="table-secondary">
+                                    <td colspan="4" class="text-center fw-bold">节头（Section Header）表相关信息</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="节头表在文件中的偏移">节头表偏移</span>
+                                    </td>
+                                    <td>{{ result.elf_header.section_header_offset }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="每个节头表项的字节大小">节头表项大小</span>
+                                    </td>
+                                    <td>{{ result.elf_header.section_header_entry_size }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="节头表中的表项数量">节头表项数目</span>
+                                    </td>
+                                    <td>{{ result.elf_header.section_header_num }}</td>
+                                    <td>
+                                        <span class="field-name popper-tips" data-popper-content="节头字符串表在节头表中的索引">节头字符串表索引</span>
+                                    </td>
+                                    <td>{{ result.elf_header.section_header_string_index }}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+
             <div class="card mt-2">
                 <div class="card-header">
+                    {% if result.section_headers %}
                     <a class="collapsed card-link" data-bs-toggle="collapse" href="#section_headers">
                         Section 表
                     </a>
+                    {% else %}
+                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#section_headers" style="pointer-events: none; color: gray;">
+                        Section 表不存在
+                    </a>
+                    {% endif %}
                 </div>
                 <div id="section_headers" class="collapse">
                     <div class="card-body">
                         <table class="table table-bordered table-sm table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    {% for key in result.section_headers.0.keys %}
-                                        <th>{{ key }}</th>
-                                    {% endfor %}
+                                    <th class="section-th popper-tips" data-popper-content="Section在Section表中的索引编号。">序号</th>
+                                    <th class="section-th popper-tips" data-popper-content="Section的名称，通常从字符串表中引用。">名称</th>
+                                    <th class="section-th popper-tips" data-popper-content="Section的类型，指示其用途（如代码、数据、符号表等）。">类型</th>
+                                    <th class="section-th popper-tips" data-popper-content="Section在内存中的起始地址。">地址</th>
+                                    <th class="section-th popper-tips" data-popper-content="Section在文件中的起始位置（字节偏移量）。">偏移</th>
+                                    <th class="section-th popper-tips" data-popper-content="Section的大小（以字节为单位）。">大小</th>
+                                    <th class="section-th popper-tips" data-popper-content="指示Section的属性，如可读、可写、可执行等。">标志</th>
+                                    <th class="section-th popper-tips" data-popper-content="与当前Section相关的其他Section的索引（通常指向字符串表或其他关联表）。">索引</th>
+                                    <th class="section-th popper-tips" data-popper-content="与Section特定用途相关的额外信息。">附加信息</th>
+                                    <th class="section-th popper-tips" data-popper-content="Section在内存中的对齐要求（通常是2的幂）。">内存对齐</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% for row in result.section_headers %}
                                 <tr>
-                                    {% for value in row.values %}
-                                        <td>{{ value }}</td>
-                                    {% endfor %}
+                                    <td>{{ row.序号 }}</td>
+                                    <td>{{ row.名称 }}</td>
+                                    <td>{{ row.类型 }}</td>
+                                    <td>{{ row.地址 }}</td>
+                                    <td>{{ row.偏移 }}</td>
+                                    <td>{{ row.大小 }}</td>
+                                    <td>
+                                        <span class="section-flag popper-tips" data-popper-content="{{ row.标志原始值 }}">{{ row.标志 }}</span>
+                                    </td>
+                                    <td>{{ row.索引 }}</td>
+                                    <td>{{ row.附加信息 }}</td>
+                                    <td>{{ row.内存对齐 }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -90,14 +227,17 @@
                     </div>
                 </div>
             </div>
-            
-        <!-- </div>
-        <div class="col"> -->
             <div class="card mt-2">
                 <div class="card-header">
+                    {% if result.program_headers %}
                     <a class="collapsed card-link" data-bs-toggle="collapse" href="#program_headers">
                         Program 表
                     </a>
+                    {% else %}
+                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#program_headers" style="pointer-events: none; color: gray;">
+                        Program 表不存在
+                    </a>
+                    {% endif %}
                 </div>
                 <div id="program_headers" class="collapse">
                     <div class="card-body">

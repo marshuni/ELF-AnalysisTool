@@ -28,6 +28,39 @@
     <script src="{% static 'popper/popper.min.js' %}"></script>    
     <!-- 引入bootstrap的js文件 -->
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script>
+    document.querySelectorAll('.popper-tips').forEach(function(el) {
+        el.addEventListener('mouseenter', function(e) {
+            if (el._popperInstance) return;
+            const tooltip = document.createElement('div');
+            tooltip.className = 'popper-tooltip';
+            tooltip.innerText = el.getAttribute('data-popper-content');
+            document.body.appendChild(tooltip);
+            el._popperTooltip = tooltip;
+            el._popperInstance = Popper.createPopper(el, tooltip, {
+                placement: 'top',
+                modifiers: [{ name: 'offset', options: { offset: [0, 8] } }]
+            });
+            tooltip.style.zIndex = 9999;
+            tooltip.style.background = '#333';
+            tooltip.style.color = '#fff';
+            tooltip.style.padding = '4px 10px';
+            tooltip.style.borderRadius = '4px';
+            tooltip.style.fontSize = '0.95em';
+            tooltip.style.pointerEvents = 'none';
+        });
+        el.addEventListener('mouseleave', function(e) {
+            if (el._popperInstance) {
+                el._popperInstance.destroy();
+                el._popperInstance = null;
+            }
+            if (el._popperTooltip) {
+                document.body.removeChild(el._popperTooltip);
+                el._popperTooltip = null;
+            }
+        });
+    });
+    </script>
 </body>
 
 </html>
