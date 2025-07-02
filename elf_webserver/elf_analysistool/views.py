@@ -15,20 +15,19 @@ def format_size(val):
         return f"{val} 字节"
     return val
 
+# ELF 头格式化
 def explain_elf_class(val):
     return {
         0: "无效",
         1: "32位 (ELF32)",
         2: "64位 (ELF64)"
     }.get(val, f"未知({val})")
-
 def explain_data_encoding(val):
     return {
         0: "无效",
         1: "小端 (Little Endian)",
         2: "大端 (Big Endian)"
     }.get(val, f"未知({val})")
-
 def explain_os_abi(val):
     table = {
         0: "System V",
@@ -47,10 +46,9 @@ def explain_os_abi(val):
         15: "AROS",
         16: "Fenix OS",
         17: "CloudABI",
-        18: "Stratus Technologies OpenVOS"
+        18: "Stratus Technologies OpenVOS",
     }
     return table.get(val, f"未知({val})")
-
 def explain_type(val):
     table = {
         0: "无类型 (ET_NONE)",
@@ -60,17 +58,16 @@ def explain_type(val):
         4: "核心转储文件 (ET_CORE)"
     }
     return table.get(val, f"未知({val})")
-
 def explain_machine(val):
     table = {
         0: "No specific instruction set",
         3: "x86",
         40: "ARM",
         62: "x86-64",
-        183: "AArch64"
+        183: "AArch64",
+        243: "RISC-V"
     }
     return table.get(val, f"未知({val})")
-
 def format_elf_header(raw):
     # 格式化 ELF Header
     elf_header = raw.get("elf_header", {}).copy()
@@ -93,6 +90,7 @@ def format_elf_header(raw):
         elf_header["flags"] = hexify(elf_header["flags"],2)
     return elf_header
 
+# 节头表格式化
 SECTION_TYPE_MAP = {
     0: "NULL（无效节）",
     1: "PROGBITS（程序数据）",
@@ -113,7 +111,6 @@ SECTION_TYPE_MAP = {
     18: "SYMTAB_SHNDX（节索引扩展表）",
     # ...可补充更多类型...
 }
-
 def explain_section_type(val):
     # 兼容字符串和数字
     try:
@@ -121,7 +118,6 @@ def explain_section_type(val):
     except Exception:
         return f"未知({val})"
     return SECTION_TYPE_MAP.get(val_int, f"{val}（未知）")
-
 def explain_section_flags(val):
     # ELF 标准节标志位
     flags = []
@@ -149,7 +145,6 @@ def explain_section_flags(val):
         if val & 0x800:
             flags.append("C(压缩)")
     return " | ".join(flags) if flags else f"0"
-
 def format_section_headers(raw):
     # 格式化 Section Headers
     section_headers = raw.get("section_headers", [])
@@ -166,7 +161,78 @@ def format_section_headers(raw):
             "标志原始值": hexify(sh.get('flags'),4) if "flags" in sh else "",
             "索引": sh.get("link"),
             "附加信息": sh.get("info"),
-            "内存对齐": sh.get("addralign"),
+            "内存对齐": format_size(sh.get("addralign")) if "addralign" in sh else "",
+        }
+        formatted.append(item)
+    return formatted
+
+# 符号表格式化
+def explain_symbol_type(val):
+    # 提取出符号类型位
+    val = val & 0xF  # 只保留低4位
+    # ELF 符号类型
+    types = {
+        0: "未指定",
+        1: "数据对象 (STT_OBJECT)",
+        2: "函数 (STT_FUNC)",
+        3: "节 (STT_SECTION)",
+        4: "文件 (STT_FILE)",
+    }
+    return types.get(val, f"未知({val})")
+def explain_symbol_binding(val):
+    # 提取出符号绑定类型位
+    val = val >> 4
+    # ELF 符号绑定类型
+    bindings = {
+        0: "本地 (STB_LOCAL)",
+        1: "全局 (STB_GLOBAL)",
+        2: "弱 (STB_WEAK)",
+    }
+    return bindings.get(val, f"未知({val})")
+def format_symbols(raw):
+    symbols = raw.get("symbols", [])
+    formatted = []
+    for section in symbols:
+        section_name = section.get("name", "<unknown>")
+        section_symbols = section.get("symbols", [])
+        symtab_list = []
+        for s in section_symbols:
+            symtab = {
+                "序号": s.get("index"),
+                "名称": s.get("name"),
+                "值": hexify(s.get("value", 0),4),
+                "大小": s.get("size"),
+                "符号类型": explain_symbol_type(s.get("info", -1)),
+                "绑定类型": explain_symbol_binding(s.get("info", -1)),
+                "所在节": s.get("shndx"),
+            }
+            symtab_list.append(symtab)
+        item = {
+            "节名称": section_name,
+            "符号表": symtab_list,
+        }
+        formatted.append(item)
+    return formatted
+
+def format_dynamic_segment(raw):
+    dynamic = raw.get("dynamic_segment", [])
+    formatted = []
+    for d in dynamic:
+        item = {
+            "Tag": hex(d.get("tag", 0)),
+            "值_地址": hex(d.get("val_ptr", 0)),
+        }
+        formatted.append(item)
+    return formatted
+
+def format_relocations(raw):
+    relocations = raw.get("relocations", [])
+    formatted = []
+    for r in relocations:
+        item = {
+            "偏移": hex(r.get("offset", 0)),
+            "Info": hex(r.get("info", 0)),
+            "加数": r.get("addend"),
         }
         formatted.append(item)
     return formatted
@@ -193,6 +259,9 @@ def format_result(raw):
         "elf_header": format_elf_header(raw),
         "program_headers": format_program_headers(raw),
         "section_headers": format_section_headers(raw),
+        "symbols": format_symbols(raw),
+        "dynamic_segment": format_dynamic_segment(raw),
+        "relocations": format_relocations(raw),
     }
 
 def index(request):

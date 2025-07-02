@@ -2,6 +2,9 @@
 #include "parsers/elf_header.h"
 #include "parsers/program_header.h"
 #include "parsers/section_header.h"
+#include "parsers/symbol_table.h"
+#include "parsers/dynamic_segment.h"
+#include "parsers/relocation_table.h"
 // 其他模块
 #include "json/cJSON.h"
 
@@ -22,20 +25,33 @@ bool parse_elf_file(const char* filepath, const char* output_path) {
         cJSON_Delete(root);
         return false;
     }
-
     if (!parse_program_header(fp, root)) {
         fclose(fp);
         cJSON_Delete(root);
         return false;
     }
-
     if (!parse_section_headers(fp, root)) {
         fclose(fp);
         cJSON_Delete(root);
         return false;
     }
+    if (!parse_symbol_table(fp, root)) {
+        fclose(fp);
+        cJSON_Delete(root);
+        return false;
+    }
+    if (!parse_dynamic_segment(fp, root)) {
+        fclose(fp);
+        cJSON_Delete(root);
+        return false;
+    }
+    if (!parse_relocation_tables(fp, root)) {
+        fclose(fp);
+        cJSON_Delete(root);
+        return false;
+    }
+    
     // 其他模块：parse_program_header(fp, root) 等
-
     if (output_path) {
         FILE* out = fopen(output_path, "w");
         if (!out) {

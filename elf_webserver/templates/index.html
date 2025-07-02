@@ -9,7 +9,7 @@
 
 <!-- 在这里写详细页面 -->
 <div class="container">
-    <form action="/index" method="get">
+    <form method="post" enctype="multipart/form-data">
         <div class="row mt-4">
             <div class="col-3">
                 <h5 class="vertical-center text-right">上传你的 ELF 文件：</h5>
@@ -227,6 +227,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="card mt-2">
                 <div class="card-header">
                     {% if result.program_headers %}
@@ -262,6 +263,92 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card mt-2">
+                <div class="card-header">
+                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#symbols">符号表（Symble Table）</a>
+                </div>
+                <div id="symbols" class="collapse">
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>序号</th>
+                                    <th>值</th>
+                                    <th>大小</th>
+                                    <th>符号类型</th>
+                                    <th>绑定类型</th>
+                                    <th>所在节</th>
+                                    <th>名称</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for section in result.symbols %}
+                                <tr class="table-primary">
+                                    <td colspan="7" class="text-center fw-bold">{{ section.节名称 }}</td>
+                                </tr>
+                                {% for row in section.符号表 %}
+                                <tr>
+                                    <td>{{ row.序号 }}</td>
+                                    <td>{{ row.值 }}</td>
+                                    <td>{{ row.大小 }}</td>
+                                    <td>{{ row.符号类型 }}</td>
+                                    <td>{{ row.绑定类型 }}</td>
+                                    <td>{{ row.所在节 }}</td>
+                                    <td>{{ row.名称 }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-2">
+                <div class="card-header">
+                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#dynamic_segment">动态段 (Dynamic Segment)</a>
+                </div>
+                <div id="dynamic_segment" class="collapse">
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm table-hover">
+                            <thead class="table-light">
+                                <tr><th>Tag</th><th>值_地址</th></tr>
+                            </thead>
+                            <tbody>
+                            {% for row in result.dynamic_segment %}
+                                <tr><td>{{ row.Tag }}</td><td>{{ row.值_地址 }}</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-2">
+                <div class="card-header">
+                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#relocations">重定位表</a>
+                </div>
+                <div id="relocations" class="collapse">
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm table-hover">
+                            <thead class="table-light">
+                                <tr><th>偏移</th><th>Info</th><th>加数</th></tr>
+                            </thead>
+                            <tbody>
+                            {% for row in result.relocations %}
+                                <tr>
+                                    <td>{{ row.偏移 }}</td>
+                                    <td>{{ row.Info }}</td>
+                                    <td>{{ row.加数 }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
