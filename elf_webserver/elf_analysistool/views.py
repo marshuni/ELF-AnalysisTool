@@ -200,7 +200,7 @@ def format_symbols(raw):
             symtab = {
                 "序号": s.get("index"),
                 "名称": s.get("name"),
-                "值": hexify(s.get("value", 0),4),
+                "值": hexify(s.get("value", 0),8),
                 "大小": s.get("size"),
                 "符号类型": explain_symbol_type(s.get("info", -1)),
                 "绑定类型": explain_symbol_binding(s.get("info", -1)),
@@ -226,33 +226,99 @@ def format_dynamic_segment(raw):
     return formatted
 
 def format_relocations(raw):
-    relocations = raw.get("relocations", [])
+    reloc_sections = raw.get("relocations", [])
+    symbols = raw.get("symbols", [])
+    # 构建符号索引到符号名的映射
+    symbol_map = {}
+    for section in symbols:
+        if "dyn" not in section.get("name", "").lower():
+            continue
+        for s in section.get("symbols", []):
+            idx = s.get("index")
+            name = s.get("name")
+            if idx is not None:
+                symbol_map[idx] = name
+
     formatted = []
-    for r in relocations:
-        item = {
-            "偏移": hex(r.get("offset", 0)),
-            "Info": hex(r.get("info", 0)),
-            "加数": r.get("addend"),
-        }
-        formatted.append(item)
+    # 每个节一个对象，包含 name 和 entries。
+    for section in reloc_sections:
+        section_name = section.get("name", "<unknown>")
+        entries = section.get("entries", [])
+        entry_list = []
+        for r in entries:
+            info = r.get("info", 0)
+            # ELF64_R_SYM(info) = info >> 32 (for 64bit), ELF32_R_SYM(info) = info >> 8 (for 32bit)
+            if info > 0xFFFFFFFF:
+                sym_idx = info >> 32
+            else:
+                sym_idx = info >> 8
+            symbol_name = symbol_map.get(sym_idx, "")
+            item = {
+                "偏移": hex(r.get("offset", 0)),
+                "信息": hex(info),
+                "附加值": r.get("addend"),
+                "符号索引": sym_idx,
+                "符号名": symbol_name,
+            }
+            entry_list.append(item)
+        formatted.append({
+            "节名称": section_name,
+            "重定位项": entry_list,
+        })
     return formatted
 
 def format_program_headers(raw):
-    # 格式化 Program Headers
+    # 获取 Program Headers 和 Section Headers
     program_headers = raw.get("program_headers", [])
-    for ph in program_headers:
-        for key in ["offset", "vaddr", "paddr"]:
-            if key in ph:
-                ph[key] = hexify(ph[key])
-        for key in ["filesz", "memsz"]:
-            if key in ph:
-                ph[key] = format_size(ph[key])
-        for key in ["flags", "align"]:
-            if key in ph:
-                ph[key] = hexify(ph[key],4)
-    return program_headers
+    section_headers = raw.get("section_headers", [])
 
+    # 预处理 Section 信息，便于查找
+    section_list = []
+    for sh in section_headers:
+        section_list.append({
+            "名称": sh.get("name"),
+            "起始地址": sh.get("addr"),
+            "偏移": sh.get("offset"),
+            "大小": sh.get("size"),
+        })
 
+    formatted = []
+    for idx, ph in enumerate(program_headers):
+        # 计算该段的虚拟地址范围和文件偏移范围
+        vaddr = ph.get("vaddr", 0)
+        memsz = ph.get("memsz", 0)
+        offset = ph.get("offset", 0)
+        filesz = ph.get("filesz", 0)
+
+        # 找出属于该段的Section
+        mapped_sections = []
+        for sh in section_list:
+            # 判断节是否落在该段的虚拟地址范围内
+            sh_addr = sh.get("起始地址", 0)
+            sh_size = sh.get("大小", 0)
+            if sh_addr is not None and vaddr is not None and memsz is not None:
+                if vaddr <= sh_addr < vaddr + memsz:
+                    mapped_sections.append(sh.get("名称"))
+            # 也可以根据文件偏移判断
+            sh_offset = sh.get("偏移", 0)
+            if sh_offset is not None and offset is not None and filesz is not None:
+                if offset <= sh_offset < offset + filesz and sh.get("名称") not in mapped_sections:
+                    mapped_sections.append(sh.get("名称"))
+
+        item = {
+            "序号": idx,
+            "类型": hexify(ph.get("type", 0), 4),
+            "偏移": hexify(ph.get("offset", 0)),
+            "虚拟地址": hexify(ph.get("vaddr", 0)),
+            "物理地址": hexify(ph.get("paddr", 0)),
+            "文件大小": format_size(ph.get("filesz", 0)),
+            "内存大小": format_size(ph.get("memsz", 0)),
+            "标志": hexify(ph.get("flags", 4), 4),
+            "对齐": hexify(ph.get("align", 0), 4),
+            "映射到该段的Section": ", ".join(mapped_sections) if mapped_sections else "无",
+        }
+        formatted.append(item)
+    return formatted
 
 def format_result(raw):
     return {

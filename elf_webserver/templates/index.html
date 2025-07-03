@@ -240,25 +240,40 @@
                     </a>
                     {% endif %}
                 </div>
+                <!-- 替换 Program 表部分，表头全部中文，增加 popper-tips 注释，自动适配新列 -->
                 <div id="program_headers" class="collapse">
                     <div class="card-body">
                         <table class="table table-bordered table-sm table-hover">
-                        <thead class="table-light">
-                            <tr>
-                            {% for key in result.program_headers.0.keys %}
-                                <th>{{ key }}</th>
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="max-width: 60px; width: 6%;" class="popper-tips" data-popper-content="Program Header在表中的序号">序号</th>
+                                    <th style="max-width: 100px; width: 10%;" class="popper-tips" data-popper-content="段类型（十六进制）">类型</th>
+                                    <th style="max-width: 90px; width: 9%;" class="popper-tips" data-popper-content="段在文件中的起始偏移">偏移</th>
+                                    <th style="max-width: 110px; width: 11%;" class="popper-tips" data-popper-content="段在内存中的虚拟地址">虚拟地址</th>
+                                    <th style="max-width: 110px; width: 11%;" class="popper-tips" data-popper-content="段在内存中的物理地址">物理地址</th>
+                                    <th style="max-width: 90px; width: 9%;" class="popper-tips" data-popper-content="段在文件中的大小">文件大小</th>
+                                    <th style="max-width: 90px; width: 9%;" class="popper-tips" data-popper-content="段在内存中的大小">内存大小</th>
+                                    <th style="max-width: 80px; width: 8%;" class="popper-tips" data-popper-content="段的访问权限标志（十六进制）">标志</th>
+                                    <th style="max-width: 70px; width: 7%;" class="popper-tips" data-popper-content="段的对齐要求">对齐</th>
+                                    <th style="max-width: 200px; width: 20%;" class="popper-tips" data-popper-content="映射到该段的Section名称列表">映射到该段的Section</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in result.program_headers %}
+                                <tr>
+                                    <td style="max-width: 60px; word-break: break-all;">{{ row.序号 }}</td>
+                                    <td style="max-width: 100px; word-break: break-all;">{{ row.类型 }}</td>
+                                    <td style="max-width: 90px; word-break: break-all;">{{ row.偏移 }}</td>
+                                    <td style="max-width: 110px; word-break: break-all;">{{ row.虚拟地址 }}</td>
+                                    <td style="max-width: 110px; word-break: break-all;">{{ row.物理地址 }}</td>
+                                    <td style="max-width: 90px; word-break: break-all;">{{ row.文件大小 }}</td>
+                                    <td style="max-width: 90px; word-break: break-all;">{{ row.内存大小 }}</td>
+                                    <td style="max-width: 80px; word-break: break-all;">{{ row.标志 }}</td>
+                                    <td style="max-width: 70px; word-break: break-all;">{{ row.对齐 }}</td>
+                                    <td style="max-width: 200px; word-break: break-all; white-space: pre-line;">{{ row.映射到该段的Section }}</td>
+                                </tr>
                             {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for row in result.program_headers %}
-                            <tr>
-                            {% for value in row.values %}
-                                <td>{{ value }}</td>
-                            {% endfor %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -266,36 +281,41 @@
 
             <div class="card mt-2">
                 <div class="card-header">
-                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#symbols">符号表（Symble Table）</a>
+                    {% if result.symbols %}
+                        <a class="collapsed card-link" data-bs-toggle="collapse" href="#symbols">符号表（Symble Table）</a>
+                    {% else %}
+                        <a class="collapsed card-link" data-bs-toggle="collapse" href="#symbols" style="pointer-events: none; color: gray;">符号表不存在</a>
+                    {% endif %}
                 </div>
+                
                 <div id="symbols" class="collapse">
                     <div class="card-body">
                         <table class="table table-bordered table-sm table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>序号</th>
-                                    <th>值</th>
-                                    <th>大小</th>
-                                    <th>符号类型</th>
-                                    <th>绑定类型</th>
-                                    <th>所在节</th>
-                                    <th>名称</th>
+                                    <th style="max-width: 60px; word-break: break-all; white-space: pre-line;">序号</th>
+                                    <th style="max-width: 120px; word-break: break-all; white-space: pre-line;" class="popper-tips" data-popper-content="符号的地址或与之相关的值。">值</th>
+                                    <th style="max-width: 80px; word-break: break-all; white-space: pre-line;">大小</th>
+                                    <th style="max-width: 100px; word-break: break-all; white-space: pre-line;" class="popper-tips" data-popper-content="符号的类型，如函数、对象等。">符号类型</th>
+                                    <th style="max-width: 100px; word-break: break-all; white-space: pre-line;" class="popper-tips" data-popper-content="符号的绑定属性，决定符号的可见性。如本地、全局符号。">绑定类型</th>
+                                    <th style="max-width: 120px; word-break: break-all; white-space: pre-line;">所在节</th>
+                                    <th style="max-width: 200px; word-break: break-all; white-space: pre-line;" class="popper-tips" data-popper-content="符号的名称，通常是变量名或函数名。">名称</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% for section in result.symbols %}
                                 <tr class="table-primary">
-                                    <td colspan="7" class="text-center fw-bold">{{ section.节名称 }}</td>
+                                    <td colspan="7" class="text-center fw-bold" style="word-break: break-all; white-space: pre-line;">{{ section.节名称 }}</td>
                                 </tr>
                                 {% for row in section.符号表 %}
                                 <tr>
-                                    <td>{{ row.序号 }}</td>
-                                    <td>{{ row.值 }}</td>
-                                    <td>{{ row.大小 }}</td>
-                                    <td>{{ row.符号类型 }}</td>
-                                    <td>{{ row.绑定类型 }}</td>
-                                    <td>{{ row.所在节 }}</td>
-                                    <td>{{ row.名称 }}</td>
+                                    <td style="max-width: 60px; word-break: break-all; white-space: pre-line;">{{ row.序号 }}</td>
+                                    <td style="max-width: 120px; word-break: break-all; white-space: pre-line;">{{ row.值 }}</td>
+                                    <td style="max-width: 80px; word-break: break-all; white-space: pre-line;">{{ row.大小 }}</td>
+                                    <td style="max-width: 100px; word-break: break-all; white-space: pre-line;">{{ row.符号类型 }}</td>
+                                    <td style="max-width: 100px; word-break: break-all; white-space: pre-line;">{{ row.绑定类型 }}</td>
+                                    <td style="max-width: 120px; word-break: break-all; white-space: pre-line;">{{ row.所在节 }}</td>
+                                    <td style="max-width: 200px; word-break: break-all; white-space: pre-line;">{{ row.名称 }}</td>
                                 </tr>
                                 {% endfor %}
                             {% endfor %}
@@ -307,7 +327,11 @@
 
             <div class="card mt-2">
                 <div class="card-header">
-                    <a class="collapsed card-link" data-bs-toggle="collapse" href="#dynamic_segment">动态段 (Dynamic Segment)</a>
+                    {% if result.dynamic_segment %}
+                        <a class="collapsed card-link" data-bs-toggle="collapse" href="#dynamic_segment">动态段（Dynamic Segment）</a>
+                    {% else %}
+                        <a class="collapsed card-link" data-bs-toggle="collapse" href="#dynamic_segment" style="pointer-events: none; color: gray;">动态段不存在</a>
+                    {% endif %}
                 </div>
                 <div id="dynamic_segment" class="collapse">
                     <div class="card-body">
@@ -333,15 +357,30 @@
                     <div class="card-body">
                         <table class="table table-bordered table-sm table-hover">
                             <thead class="table-light">
-                                <tr><th>偏移</th><th>Info</th><th>加数</th></tr>
+                                <tr>
+                                    <th class="popper-tips" data-popper-content="此成员给出了重定位动作所适用的位置。对可重定位文件而言，此值是从节区头部开始到将被重定位影响的存储单位之间的字节偏移；对于可执行文件或者共享目标文件，取值是被重定位影响到的虚拟地址。">偏移</th>
+                                    <th class="popper-tips" data-popper-content="此成员给出要进行重定位的符号表索引，以及将实施的重定位类型。">信息</th>
+                                    <th>附加值</th>
+                                    <th class="popper-tips" data-popper-content="根据 r_info 查找到的符号表索引">符号索引</th>
+                                    <th>符号名</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            {% for row in result.relocations %}
+                            {% for section in result.relocations %}
+                                <tr class="table-primary">
+                                    <td colspan="5" class="text-center fw-bold" style="word-break: break-all;">
+                                        {{ section.节名称 }}
+                                    </td>
+                                </tr>
+                                {% for row in section.重定位项 %}
                                 <tr>
                                     <td>{{ row.偏移 }}</td>
-                                    <td>{{ row.Info }}</td>
-                                    <td>{{ row.加数 }}</td>
+                                    <td>{{ row.信息 }}</td>
+                                    <td>{{ row.附加值 }}</td>
+                                    <td>{{ row.符号索引 }}</td>
+                                    <td>{{ row.符号名 }}</td>
                                 </tr>
+                                {% endfor %}
                             {% endfor %}
                             </tbody>
                         </table>
