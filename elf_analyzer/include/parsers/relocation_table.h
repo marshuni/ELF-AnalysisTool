@@ -1,5 +1,5 @@
-#ifndef SECTION_HEADER_H
-#define SECTION_HEADER_H
+#ifndef RELOCATION_HEADER_H
+#define RELOCATION_HEADER_H
 
 #include <stdio.h>
 #include <stdbool.h>

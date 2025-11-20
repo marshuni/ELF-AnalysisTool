@@ -1,5 +1,5 @@
-#ifndef SECTION_HEADER_H
-#define SECTION_HEADER_H
+#ifndef SYMBOL_TABLE_H
+#define SYMBOL_TABLE_H
 
 #include <stdio.h>
 #include <stdbool.h>

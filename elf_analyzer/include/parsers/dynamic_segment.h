@@ -1,5 +1,5 @@
-#ifndef SECTION_HEADER_H
-#define SECTION_HEADER_H
+#ifndef SYNAMIC_SEGMENT_H
+#define SYNAMIC_SEGMENT_H
 
 #include <stdio.h>
 #include <stdbool.h>

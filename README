@@ -1,3 +1,33 @@
+使用说明
+=====
+
+`elf_webserver/` 目录包含一个基于 Python Django 的 Web 服务器。  
+使用方法如下：
+
+1. 确保已通过 `pip install django` 安装好 Django 库。
+2. 在 `elf_webserver/` 目录下，运行以下命令启动服务器：  
+  ```
+  python manage.py runserver
+  ```
+3. 按照终端提示访问本地 Web 服务。
+
+====
+`elf_analyzer/` 目录包含一个 C++ 编写的 ELF 文件分析器。
+
+构建和使用方法如下：
+
+1. 在 `elf-analyzer/` 目录下创建一个 `build` 文件夹。
+2. 打开终端并切换到 `build` 文件夹。
+3. 运行 `cmake` 命令：
+  - 在 Windows 上：  
+    `cmake -G "MinGW Makefiles" ..`
+  - 在 Linux/macOS 上：  
+    `cmake ..`
+4. 运行 `make` 编译项目。
+
+编译完成后，可在 `build` 目录中找到可执行文件。
+
+
 Usage
 =====
 
